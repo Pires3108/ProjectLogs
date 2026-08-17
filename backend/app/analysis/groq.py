@@ -2,7 +2,12 @@ import httpx
 
 from app.analysis.http import post_json, validate_analysis
 from app.analysis.models import StructuredAnalysis
-from app.analysis.prompt import SYSTEM_INSTRUCTION, analysis_json_schema, build_analysis_prompt
+from app.analysis.prompt import (
+    SYSTEM_INSTRUCTION,
+    analysis_json_schema,
+    build_analysis_prompt,
+    distributed_excerpt,
+)
 from app.analysis.provider import AnalysisProviderError
 
 
@@ -15,11 +20,13 @@ class GroqAnalysisProvider:
         api_key: str,
         model: str,
         url: str,
+        max_input_characters: int = 16_000,
         client: httpx.Client | None = None,
     ) -> None:
         self.api_key = api_key
         self.model = model
         self.url = url
+        self.max_input_characters = max_input_characters
         self.client = client or httpx.Client(timeout=180)
 
     def analyze(self, text: str) -> StructuredAnalysis:
@@ -32,7 +39,12 @@ class GroqAnalysisProvider:
                 "model": self.model,
                 "messages": [
                     {"role": "system", "content": SYSTEM_INSTRUCTION},
-                    {"role": "user", "content": build_analysis_prompt(text)},
+                    {
+                        "role": "user",
+                        "content": build_analysis_prompt(
+                            distributed_excerpt(text, self.max_input_characters)
+                        ),
+                    },
                 ],
                 "temperature": 0.1,
                 "response_format": {

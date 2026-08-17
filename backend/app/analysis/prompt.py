@@ -8,6 +8,27 @@ tempo e responsabilidades quando a fonte trouxer essas relações; não invente 
 datas nem papéis RACI. Retorne apenas o JSON solicitado.
 """
 
+OMISSION_MARKER = "\n\n[...trecho omitido para respeitar o limite do provedor...]\n\n"
+
+
+def distributed_excerpt(text: str, max_characters: int) -> str:
+    """Preserva início, centro e fim quando um provedor exige uma entrada menor."""
+    if max_characters <= 0 or len(text) <= max_characters:
+        return text
+    available = max_characters - 2 * len(OMISSION_MARKER)
+    if available < 3:
+        return text[:max_characters]
+    segment = available // 3
+    middle_start = max(0, len(text) // 2 - segment // 2)
+    end_size = available - 2 * segment
+    return (
+        text[:segment]
+        + OMISSION_MARKER
+        + text[middle_start : middle_start + segment]
+        + OMISSION_MARKER
+        + text[-end_size:]
+    )
+
 
 def build_analysis_prompt(text: str) -> str:
     return (

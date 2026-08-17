@@ -49,3 +49,32 @@ def test_groq_uses_strict_json_schema() -> None:
     result = provider.analyze("fonte sintética")
 
     assert result.objetivo.startswith("Planejar")
+
+
+def test_groq_uses_distributed_excerpt_for_large_sources() -> None:
+    captured_content = ""
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal captured_content
+        payload = __import__("json").loads(request.content)
+        captured_content = payload["messages"][1]["content"]
+        return httpx.Response(
+            200,
+            json={"choices": [{"message": {"content": VALID_ANALYSIS_JSON}}]},
+        )
+
+    source = "A" * 10_000 + "B" * 10_000 + "C" * 10_000
+    provider = GroqAnalysisProvider(
+        api_key="synthetic-groq-key",
+        model="openai/gpt-oss-120b",
+        url="https://groq.invalid/chat/completions",
+        max_input_characters=3_000,
+        client=httpx.Client(transport=httpx.MockTransport(handler)),
+    )
+
+    provider.analyze(source)
+
+    assert "AAAA" in captured_content
+    assert "BBBB" in captured_content
+    assert "CCCC" in captured_content
+    assert "trecho omitido" in captured_content

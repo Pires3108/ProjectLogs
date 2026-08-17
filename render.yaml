@@ -27,8 +27,14 @@ services:
         sync: false
       - key: GEMINI_ANALYSIS_MODEL
         value: gemini-3.6-flash
+      - key: LLM_MAX_ATTEMPTS
+        value: "3"
+      - key: LLM_BACKOFF_SECONDS
+        value: "2"
       - key: GROQ_API_KEY
         sync: false
+      - key: GROQ_ANALYSIS_MAX_INPUT_CHARACTERS
+        value: "16000"
       - key: API_KEY_PEPPER
         sync: false
       - key: INTERNAL_TASK_SECRET

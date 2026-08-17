@@ -26,8 +26,9 @@ class Settings(BaseSettings):
     gemini_api_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
     groq_analysis_model: str = "openai/gpt-oss-120b"
     groq_chat_url: str = "https://api.groq.com/openai/v1/chat/completions"
-    llm_max_attempts: int = 2
-    llm_backoff_seconds: float = 1.0
+    llm_max_attempts: int = 3
+    llm_backoff_seconds: float = 2.0
+    groq_analysis_max_input_characters: int = 16_000
     mermaid_asset_path: str = "app/static/vendor/mermaid.min.js"
     database_url: str = "sqlite:///runtime/ataviva.db"
     database_url_unpooled: str | None = None
