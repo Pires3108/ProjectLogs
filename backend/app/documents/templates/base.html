@@ -6,41 +6,142 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:">
   <title>{{ rules.nome }} · {{ analysis.objetivo }}</title>
   <style>
-    :root { --paper:#edf2f3; --ink:#102635; --muted:#526975; --accent:#007f78; --line:#b8c7cc; --card:#f9fbfb; --navy:#092238; }
-    .profile-estudo { --accent:#6656c7; } .profile-organizacao { --accent:#007f78; } .profile-backlog { --accent:#d35a24; }
+    :root {
+      --ink:#14213a; --ink-soft:#2a3953; --muted:#65728a; --paper:#f5f7fa;
+      --surface:#fff; --line:#d7dde7; --line-strong:#abb6c8; --navy:#10192a;
+      --accent:#1267a8; --signal:#00a6c8; --warm:#e96d2c; --good:#237a57;
+      --warn:#a96600; --danger:#b42318; --radius:10px; --rail:270px; --content:1120px;
+      --sans:"Segoe UI",Inter,system-ui,-apple-system,sans-serif;
+      --display:"Arial Narrow","Aptos Display","Segoe UI",sans-serif;
+      --mono:"Cascadia Code","SFMono-Regular",Consolas,monospace;
+    }
+    .profile-estudo { --accent:#3158a7; --signal:#00a6c8; }
+    .profile-organizacao { --accent:#16705a; --signal:#2ba67d; }
+    .profile-backlog { --accent:#b64e22; --signal:#e96d2c; }
     * { box-sizing:border-box; }
-    body { margin:0; color:var(--ink); background:linear-gradient(90deg,var(--navy) 0 10px,var(--paper) 10px); font:16px/1.65 "Segoe UI",system-ui,sans-serif; }
-    header, main, footer { width:min(1080px, calc(100% - 32px)); margin:auto; }
-    header { position:relative; padding:72px 0 40px; border-bottom:1px solid var(--line); }
-    header::after { content:""; position:absolute; right:0; top:72px; width:clamp(64px,14vw,180px); height:8px; background:repeating-linear-gradient(90deg,var(--accent) 0 8px,transparent 8px 14px); }
-    .eyebrow { color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; }
-    h1 { max-width:850px; margin:12px 0 20px; font-family:Georgia,"Times New Roman",serif; font-size:clamp(36px,7vw,72px); font-weight:500; line-height:1; letter-spacing:-.045em; }
-    h2 { margin-top:56px; font-size:28px; letter-spacing:-.02em; }
-    h3 { margin-bottom:8px; }
-    p { max-width:78ch; }
-    .muted { color:var(--muted); }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
-    .card { position:relative; padding:24px; background:var(--card); border:1px solid var(--line); box-shadow:4px 4px 0 color-mix(in srgb,var(--accent) 18%,transparent); }
-    .card::before { content:""; position:absolute; left:-1px; top:-1px; width:34px; height:3px; background:var(--accent); }
-    .tag { display:inline-block; margin:0 6px 6px 0; padding:3px 9px; border:1px solid var(--line); border-radius:99px; font-size:12px; }
+    html { scroll-behavior:smooth; scroll-padding-top:24px; }
+    body { margin:0; color:var(--ink); background:var(--paper); font:16px/1.62 var(--sans); }
+    a { color:inherit; } button { font:inherit; }
+    a:focus-visible,button:focus-visible { outline:3px solid color-mix(in srgb,var(--signal) 40%,transparent); outline-offset:3px; }
+    .progress { position:fixed; inset:0 auto auto 0; z-index:50; width:0; height:5px; background:var(--signal); }
+    .shell { display:grid; grid-template-columns:var(--rail) minmax(0,1fr); min-height:100vh; }
+    .sidebar { position:sticky; top:0; height:100vh; overflow:auto; padding:30px 22px; color:#eef4ff; background:var(--navy); border-right:1px solid #29344a; }
+    .brand { display:flex; align-items:center; gap:12px; margin-bottom:34px; }
+    .brand-mark { width:40px; height:40px; display:grid; place-items:center; border:2px solid var(--signal); color:var(--signal); font:900 12px var(--mono); }
+    .brand strong { display:block; font:800 15px/1.15 var(--display); letter-spacing:.09em; text-transform:uppercase; }
+    .brand small { color:#96a5bd; }
+    .side-label { margin:24px 0 9px; color:#7f91aa; font-size:.7rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+    .profile-chip { display:inline-flex; padding:6px 9px; border:1px solid #3a4962; color:#d7e0ed; background:#172238; font:700 .74rem var(--mono); }
+    .nav { display:grid; gap:2px; }
+    .nav a { padding:8px 9px; border-left:2px solid transparent; color:#c6d0df; font-size:.86rem; text-decoration:none; }
+    .nav a:hover,.nav a.active { color:#fff; border-color:var(--signal); background:#18253d; }
+    .sidebar-note { margin-top:28px; padding-top:16px; border-top:1px solid #29344a; color:#8291a8; font-size:.74rem; }
+    main { min-width:0; }
+    .hero { overflow:hidden; background:var(--surface); border-bottom:1px solid var(--line); }
+    .hero-inner { width:min(var(--content),calc(100% - 64px)); margin:auto; padding:68px 0 52px; }
+    .eyebrow { color:var(--accent); font:800 .74rem var(--mono); letter-spacing:.14em; text-transform:uppercase; }
+    h1,h2,h3 { margin-top:0; font-family:var(--display); line-height:1.12; }
+    h1 { max-width:930px; margin:14px 0 20px; font-size:clamp(2.5rem,5.1vw,4.8rem); letter-spacing:-.045em; }
+    .lead { max-width:820px; margin:0; color:var(--ink-soft); font-size:1.12rem; }
+    .hero-meta { display:flex; flex-wrap:wrap; gap:9px; margin-top:28px; }
+    .tag { display:inline-flex; align-items:center; gap:6px; padding:5px 9px; border:1px solid var(--line-strong); border-radius:999px; background:#fff; color:var(--ink-soft); font-size:.75rem; }
+    .tag::before { content:""; width:6px; height:6px; border-radius:50%; background:var(--signal); }
+    .signal { position:relative; display:grid; grid-template-columns:repeat(3,1fr); max-width:720px; margin-top:38px; }
+    .signal::before { content:""; position:absolute; left:8%; right:8%; top:18px; height:2px; background:var(--line-strong); }
+    .signal-step { position:relative; text-align:center; font-size:.78rem; color:var(--muted); }
+    .signal-step b { display:grid; place-items:center; width:38px; height:38px; margin:0 auto 8px; border:2px solid var(--accent); border-radius:50%; background:#fff; color:var(--accent); font:800 .7rem var(--mono); }
+    .signal-step:nth-child(2) b { color:#fff; background:var(--ink); border-color:var(--signal); }
+    .content { width:min(var(--content),calc(100% - 64px)); margin:auto; padding:24px 0 96px; }
+    section { padding:46px 0; border-bottom:1px solid var(--line); }
+    section:last-child { border-bottom:0; }
+    .section-head { display:grid; grid-template-columns:84px minmax(0,1fr); gap:18px; margin-bottom:25px; }
+    .chapter { padding-top:6px; color:var(--warm); font:800 .9rem var(--mono); }
+    h2 { margin-bottom:7px; font-size:clamp(1.9rem,3vw,2.65rem); letter-spacing:-.03em; }
+    .section-intro,.muted { color:var(--muted); }
+    .section-intro { max-width:760px; margin:0; }
+    h3 { margin:0 0 8px; font-size:1.3rem; }
+    p { margin:0 0 14px; }
     ul,ol { padding-left:22px; }
-    .mermaid { overflow:auto; padding:24px; background:#fff; border:1px solid var(--line); }
-    .warning { padding:12px 16px; border-left:3px solid #d79020; background:#fff8e8; }
-    footer { margin-top:64px; padding:24px 0 48px; color:var(--muted); border-top:1px solid var(--line); font-size:13px; }
-    @media print { body { background:#fff; } header { padding-top:24px; } .card,.mermaid { break-inside:avoid; } }
+    li { margin:7px 0; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:16px; }
+    .card { position:relative; padding:21px; border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); }
+    .card::before { content:""; position:absolute; inset:-1px auto auto 20px; width:34px; height:3px; background:var(--accent); }
+    .card p:last-child,.card ul:last-child { margin-bottom:0; }
+    .card-label { display:block; margin-bottom:10px; color:var(--accent); font:800 .68rem var(--mono); letter-spacing:.09em; text-transform:uppercase; }
+    .evidence { margin-top:14px; padding-top:12px; border-top:1px dashed var(--line); font-size:.86rem; }
+    .status { display:inline-block; margin-bottom:11px; padding:4px 8px; border-radius:4px; background:#eaf1f8; color:var(--accent); font:800 .68rem var(--mono); text-transform:uppercase; }
+    .status-concluido { color:var(--good); background:#e7f5ee; }
+    .status-bloqueado { color:var(--danger); background:#fdecea; }
+    .status-incerto { color:var(--warn); background:#fff2d6; }
+    .decision-list { margin:0; padding:0; list-style:none; counter-reset:decision; }
+    .decision-list li { counter-increment:decision; display:grid; grid-template-columns:42px 1fr; gap:14px; padding:16px 10px; border-bottom:1px solid var(--line); background:#fff; }
+    .decision-list li::before { content:counter(decision,decimal-leading-zero); color:var(--accent); font:800 .75rem var(--mono); }
+    .timeline { margin:0; padding:0; list-style:none; border-left:2px solid var(--line-strong); }
+    .timeline li { position:relative; margin:0 0 0 19px; padding:0 0 24px 18px; }
+    .timeline li::before { content:""; position:absolute; left:-25px; top:5px; width:10px; height:10px; border:3px solid var(--accent); border-radius:50%; background:var(--paper); }
+    .timeline strong { display:block; }
+    .mermaid-board { margin:20px 0; padding:18px; overflow:auto; border:1px solid var(--line); border-radius:var(--radius); background:#fff; }
+    .mermaid { min-width:620px; margin:0; }
+    .warning { padding:14px 17px; border-left:4px solid var(--warn); background:#fff5df; }
+    .risk-list li::marker { color:var(--danger); }
+    .confirm-list li::marker { color:var(--warn); }
+    footer { padding:27px 32px; border-top:1px solid var(--line); background:#fff; color:var(--muted); font-size:.8rem; }
+    .mobile-toggle { display:none; position:fixed; right:16px; bottom:16px; z-index:60; width:48px; height:48px; border:0; border-radius:50%; color:#fff; background:var(--navy); cursor:pointer; }
+    @media (max-width:860px) {
+      .shell { display:block; }
+      .sidebar { position:fixed; z-index:55; width:min(86vw,330px); transform:translateX(-105%); transition:transform .2s ease; }
+      .sidebar.open { transform:translateX(0); }
+      .mobile-toggle { display:block; }
+      .hero-inner,.content { width:min(100% - 36px,var(--content)); }
+      .section-head { grid-template-columns:1fr; gap:3px; }
+    }
+    @media print {
+      .progress,.sidebar,.mobile-toggle { display:none!important; }
+      .shell { display:block; }
+      .hero-inner,.content { width:auto; padding-left:24px; padding-right:24px; }
+      .hero-inner { padding-top:28px; }
+      section,.card,.mermaid-board { break-inside:avoid; }
+      body { background:#fff; }
+    }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } .sidebar { transition:none; } }
   </style>
 </head>
 <body class="profile-{{ configuration.perfil.value }}">
-  <header><div class="eyebrow">ATA / {{ rules.nome }}</div><h1>{{ analysis.objetivo }}</h1><p class="muted">{{ analysis.resumo }}</p></header>
-  <main>
-    {% block profile_content %}{% endblock %}
-    {% if configuration.toggles.exemplos and example_items %}<section><h2>Exemplos</h2><div class="grid">{% for item in example_items %}<article class="card"><h3>{{ item.titulo }}</h3><ul>{% for example in item.exemplos %}<li>{{ example }}</li>{% endfor %}</ul></article>{% endfor %}</div></section>{% endif %}
-    {% if visuals %}<section><h2>Representações visuais</h2>{% for visual, source in visuals %}<article><h3>{{ visual.titulo }}</h3><pre class="mermaid">{{ source }}</pre></article>{% endfor %}</section>{% endif %}
-    {% if analysis.riscos %}<section><h2>Riscos</h2><ul>{% for risk in analysis.riscos %}<li>{{ risk }}</li>{% endfor %}</ul></section>{% endif %}
-    {% if analysis.termos_incertos %}<section><h2>Pontos a confirmar</h2><ul>{% for term in analysis.termos_incertos %}<li>{{ term }}</li>{% endfor %}</ul></section>{% endif %}
-    {% for warning in configuration.avisos %}<p class="warning">{{ warning.message }}</p>{% endfor %}
-  </main>
-  <footer>Documento gerado pelo AtaViva. Confirme informações importantes com os participantes.</footer>
-  {% if mermaid_runtime %}<script>{{ mermaid_runtime | safe }}</script><script>mermaid.initialize({startOnLoad:true,securityLevel:'strict'});</script>{% endif %}
+  <div class="progress" id="progress" aria-hidden="true"></div>
+  <button class="mobile-toggle" id="menuToggle" aria-label="Abrir sumário">☰</button>
+  <div class="shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><div class="brand-mark">AV</div><div><strong>AtaViva</strong><small>Documento vivo</small></div></div>
+      <div class="side-label">Formato</div><span class="profile-chip">{{ rules.nome }}</span>
+      <div class="side-label">Neste documento</div>
+      <nav class="nav" id="nav">{% block profile_nav %}{% endblock %}
+        {% if configuration.toggles.exemplos and example_items %}<a href="#exemplos">Exemplos</a>{% endif %}
+        {% if visuals %}<a href="#visuais">Representações visuais</a>{% endif %}
+        {% if analysis.riscos %}<a href="#riscos">Riscos</a>{% endif %}
+        {% if analysis.termos_incertos %}<a href="#confirmar">Pontos a confirmar</a>{% endif %}
+      </nav>
+      <p class="sidebar-note">Conteúdo extraído automaticamente. Valide decisões, responsáveis e prazos com os participantes.</p>
+    </aside>
+    <main>
+      <header class="hero"><div class="hero-inner">
+        <div class="eyebrow">ATA / {{ rules.nome }}</div>
+        <h1>{{ analysis.objetivo }}</h1>
+        <p class="lead">{{ analysis.resumo }}</p>
+        <div class="hero-meta"><span class="tag">{{ analysis.itens | length }} tópicos</span><span class="tag">{{ analysis.decisoes | length }} decisões</span>{% if analysis.riscos %}<span class="tag">{{ analysis.riscos | length }} riscos</span>{% endif %}</div>
+        <div class="signal" aria-label="Fluxo do documento"><div class="signal-step"><b>01</b>Fonte</div><div class="signal-step"><b>02</b>Análise</div><div class="signal-step"><b>03</b>Validação</div></div>
+      </div></header>
+      <div class="content">
+        {% block profile_content %}{% endblock %}
+        {% if configuration.toggles.exemplos and example_items %}<section id="exemplos"><div class="section-head"><div class="chapter">EX</div><div><h2>Exemplos</h2><p class="section-intro">Aplicações e situações extraídas da fonte.</p></div></div><div class="grid">{% for item in example_items %}<article class="card"><span class="card-label">{{ item.titulo }}</span><ul>{% for example in item.exemplos %}<li>{{ example }}</li>{% endfor %}</ul></article>{% endfor %}</div></section>{% endif %}
+        {% if visuals %}<section id="visuais"><div class="section-head"><div class="chapter">MAP</div><div><h2>Representações visuais</h2><p class="section-intro">Relações explicitamente identificadas no conteúdo.</p></div></div>{% for visual, source in visuals %}<article><h3>{{ visual.titulo }}</h3><div class="mermaid-board"><pre class="mermaid">{{ source }}</pre></div></article>{% endfor %}</section>{% endif %}
+        {% if analysis.riscos %}<section id="riscos"><div class="section-head"><div class="chapter">!</div><div><h2>Riscos</h2><p class="section-intro">Condições que podem comprometer a execução ou o entendimento.</p></div></div><ul class="risk-list">{% for risk in analysis.riscos %}<li>{{ risk }}</li>{% endfor %}</ul></section>{% endif %}
+        {% if analysis.termos_incertos %}<section id="confirmar"><div class="section-head"><div class="chapter">?</div><div><h2>Pontos a confirmar</h2><p class="section-intro">Informações que precisam de validação humana.</p></div></div><ul class="confirm-list">{% for term in analysis.termos_incertos %}<li>{{ term }}</li>{% endfor %}</ul></section>{% endif %}
+        {% for warning in configuration.avisos %}<p class="warning">{{ warning.message }}</p>{% endfor %}
+      </div>
+      <footer>Documento gerado pelo AtaViva · Confirme informações importantes com os participantes.</footer>
+    </main>
+  </div>
+  {% if mermaid_runtime %}<script>{{ mermaid_runtime | safe }}</script><script>mermaid.initialize({startOnLoad:true,securityLevel:'strict',theme:'neutral'});</script>{% endif %}
+  <script>(function(){const p=document.getElementById('progress'),s=document.getElementById('sidebar'),b=document.getElementById('menuToggle'),links=[...document.querySelectorAll('.nav a')];function update(){const d=document.documentElement,span=d.scrollHeight-d.clientHeight;p.style.width=(span?d.scrollTop/span*100:0)+'%';let current='';document.querySelectorAll('section[id]').forEach(x=>{if(x.getBoundingClientRect().top<180)current=x.id});links.forEach(a=>a.classList.toggle('active',a.hash==='#'+current))}addEventListener('scroll',update,{passive:true});b.addEventListener('click',()=>s.classList.toggle('open'));links.forEach(a=>a.addEventListener('click',()=>s.classList.remove('open')));update()})();</script>
 </body>
 </html>
