@@ -18,4 +18,5 @@ def test_configures_gemini_primary_and_groq_fallback() -> None:
     )
 
     assert service.primary.name == "gemini"
+    assert service.primary.model == "gemini-3.6-flash"
     assert service.fallback.name == "groq"

@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     ffprobe_binary: str = "ffprobe"
     max_media_duration_seconds: int = 3 * 60 * 60
     gemini_api_key: SecretStr | None = None
-    gemini_analysis_model: str = "gemini-2.5-flash"
+    gemini_analysis_model: str = "gemini-3.6-flash"
     gemini_api_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
     groq_analysis_model: str = "openai/gpt-oss-120b"
     groq_chat_url: str = "https://api.groq.com/openai/v1/chat/completions"
