@@ -63,6 +63,13 @@ class Settings(BaseSettings):
             return value.replace("postgresql://", "postgresql+psycopg://", 1)
         return value
 
+    @field_validator("gemini_analysis_model", mode="before")
+    @classmethod
+    def replace_retired_gemini_model(cls, value: str) -> str:
+        if value == "gemini-2.5-flash":
+            return "gemini-3.6-flash"
+        return value
+
     @property
     def allowed_origins(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
