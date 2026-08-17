@@ -1,0 +1,9 @@
+[
+  {
+    "AllowedOrigins": ["https://FRONTEND_URL"],
+    "AllowedMethods": ["PUT"],
+    "AllowedHeaders": ["Content-Type"],
+    "ExposeHeaders": ["ETag"],
+    "MaxAgeSeconds": 3600
+  }
+]

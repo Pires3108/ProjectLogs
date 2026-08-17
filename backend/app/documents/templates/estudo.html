@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block profile_content %}
+<section><h2>Conceitos-chave</h2><div class="grid">{% for item in analysis.itens %}<article class="card"><h3>{{ item.titulo }}</h3><p>{{ item.descricao }}</p>{% for evidence in item.evidencias %}<p class="muted">{{ evidence }}</p>{% endfor %}</article>{% endfor %}</div></section>
+{% if configuration.toggles.glossario and analysis.glossario %}<section><h2>Glossário</h2><div class="grid">{% for item in analysis.glossario %}<article class="card"><h3>{{ item.termo }}</h3><p>{{ item.definicao }}</p></article>{% endfor %}</div></section>{% endif %}
+{% if configuration.toggles.exercicios %}<section><h2>Exercícios</h2><ol><li>Explique com suas palavras o objetivo principal.</li><li>Relacione os conceitos-chave às decisões registradas.</li><li>Identifique quais pontos ainda precisam de confirmação.</li></ol></section>{% endif %}
+<section><h2>Sugestões de aprofundamento</h2><p>Revise as evidências da fonte e valide os pontos incertos antes de aplicar o conteúdo.</p></section>
+{% endblock %}

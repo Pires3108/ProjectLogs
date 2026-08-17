@@ -1,0 +1,108 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - backend_uploads:/data/uploads
+      - generated_html:/data/generated-html
+    environment:
+      ENVIRONMENT: development
+      CORS_ORIGINS: http://localhost:3000
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://ataviva:change-me@postgres:5432/ataviva}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      UPLOAD_ROOT: /data/uploads
+      GENERATED_HTML_ROOT: /data/generated-html
+      API_KEY_PEPPER: ${API_KEY_PEPPER:-development-only-change-me}
+
+  migrate:
+    build: ./backend
+    command: ["alembic", "upgrade", "head"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://ataviva:change-me@postgres:5432/ataviva}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  worker:
+    build: ./backend
+    command: ["celery", "-A", "app.jobs.celery_app:celery_app", "worker", "--loglevel=INFO"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://ataviva:change-me@postgres:5432/ataviva}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      UPLOAD_ROOT: /data/uploads
+      GENERATED_HTML_ROOT: /data/generated-html
+      API_KEY_PEPPER: ${API_KEY_PEPPER:-development-only-change-me}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    volumes:
+      - backend_uploads:/data/uploads
+      - generated_html:/data/generated-html
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_started
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ataviva}
+      POSTGRES_USER: ${POSTGRES_USER:-ataviva}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${STORAGE_ACCESS_KEY:-ataviva}
+      MINIO_ROOT_PASSWORD: ${STORAGE_SECRET_KEY:-change-me-too}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+volumes:
+  backend_uploads:
+  generated_html:
+  postgres_data:
+  redis_data:
+  minio_data:

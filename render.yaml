@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: ataviva-api
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: staging
+      - key: JOB_DISPATCHER
+        value: in_process
+      - key: STORAGE_BACKEND
+        value: local
+      - key: HTML_STORAGE_BACKEND
+        value: database
+      - key: UPLOAD_ROOT
+        value: /tmp/ataviva/uploads
+      - key: GENERATED_HTML_ROOT
+        value: /tmp/ataviva/generated-html
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: API_KEY_PEPPER
+        sync: false
+      - key: INTERNAL_TASK_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false

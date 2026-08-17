@@ -1,0 +1,348 @@
+openapi: 3.1.0
+info:
+  title: AtaViva API
+  version: 0.1.0
+  description: Contrato inicial da API de documentação de reuniões.
+paths:
+  /health:
+    get:
+      tags: [sistema]
+      operationId: health
+      responses:
+        "200":
+          description: Serviço disponível
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+  /v1/capabilities:
+    get:
+      tags: [configuração]
+      operationId: capabilities
+      responses:
+        "200":
+          description: Perfis, toggles e formatos planejados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CapabilitiesResponse"
+  /v1/ingestions:
+    post:
+      tags: [ingestão]
+      operationId: create_ingestion
+      summary: Valida, armazena e normaliza uma ou mais fontes
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [fontes]
+              properties:
+                fontes:
+                  type: array
+                  items: { type: string, format: binary }
+      responses:
+        "201":
+          description: Fontes ingeridas
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/IngestionResponse" }
+        "400":
+          description: Formato inválido ou arquivo corrompido
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "413":
+          description: Arquivo acima do limite configurado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "422":
+          description: Conteúdo vazio ou insuficiente
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /v1/document-configurations/validate:
+    post:
+      tags: [configuração]
+      operationId: validate_document_configuration
+      summary: Normaliza toggles conforme as regras do perfil
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DocumentConfiguration" }
+      responses:
+        "200":
+          description: Configuração efetiva e avisos não fatais
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ValidatedConfiguration" }
+        "422":
+          description: Perfil, campo ou valor inválido
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /v1/jobs:
+    post:
+      tags: [jobs]
+      operationId: create_job
+      summary: Cria um job assíncrono com uma ou mais fontes
+      security: [{ ApiKeyAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [perfil, toggles, fontes]
+              properties:
+                perfil:
+                  type: string
+                  enum: [estudo, organizacao, backlog]
+                toggles:
+                  type: string
+                  description: Objeto JSON serializado com toggles booleanos
+                fontes:
+                  type: array
+                  items: { type: string, format: binary }
+      responses:
+        "202":
+          description: Job persistido na fila
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JobResponse" }
+        "401":
+          description: API Key ausente, inválida, revogada ou expirada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "422":
+          description: Configuração ou conteúdo inválido
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /v1/uploads:
+    post:
+      tags: [uploads]
+      operationId: create_direct_upload
+      summary: Cria URL temporária para upload direto ao armazenamento
+      security: [{ ApiKeyAuth: [] }]
+      responses:
+        "200":
+          description: URL, cabeçalhos e ticket assinado do upload
+  /v1/jobs/from-uploads:
+    post:
+      tags: [jobs]
+      operationId: create_job_from_uploads
+      summary: Cria job a partir de uploads diretos confirmados
+      security: [{ ApiKeyAuth: [] }]
+      responses:
+        "202":
+          description: Job persistido na fila
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JobResponse" }
+  /v1/jobs/{job_id}:
+    get:
+      tags: [jobs]
+      operationId: get_job
+      summary: Consulta o status e metadados de um job
+      security: [{ ApiKeyAuth: [] }]
+      parameters:
+        - in: path
+          name: job_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Estado atual do job
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JobResponse" }
+        "401":
+          description: API Key não autorizada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: Job inexistente ou pertencente a outra API Key
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /v1/jobs/{job_id}/html:
+    get:
+      tags: [jobs]
+      operationId: download_job_html
+      summary: Baixa o HTML de um job concluído
+      security: [{ ApiKeyAuth: [] }]
+      parameters:
+        - in: path
+          name: job_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Documento HTML autocontido
+          content:
+            text/html:
+              schema: { type: string }
+        "409":
+          description: Job ainda não concluído
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, service, version]
+      properties:
+        status: { type: string }
+        service: { type: string }
+        version: { type: string }
+    ProfileDefinition:
+      type: object
+      required: [perfil, toggles_permitidos, secoes_obrigatorias, foco]
+      properties:
+        perfil:
+          type: string
+          enum: [estudo, organizacao, backlog]
+        toggles_permitidos:
+          type: array
+          items:
+            type: string
+            enum: [fluxogramas, diagramas, exemplos, exercicios, glossario, linha_do_tempo, matriz_responsabilidade]
+        secoes_obrigatorias:
+          type: array
+          items: { type: string }
+        foco: { type: string }
+    CapabilitiesResponse:
+      type: object
+      required: [perfis, formatos_planejados_v1]
+      properties:
+        perfis:
+          type: array
+          items: { $ref: "#/components/schemas/ProfileDefinition" }
+        formatos_planejados_v1:
+          type: array
+          items: { type: string }
+    IngestedSource:
+      type: object
+      required: [id, nome, formato, tipo, tamanho_bytes, requer_transcricao]
+      properties:
+        id: { type: string, format: uuid }
+        nome: { type: string }
+        formato: { type: string }
+        tipo:
+          type: string
+          enum: [document, transcript, audio, video]
+        tamanho_bytes: { type: integer, minimum: 1 }
+        requer_transcricao: { type: boolean }
+        texto_normalizado: { type: [string, "null"] }
+    IngestionResponse:
+      type: object
+      required: [fontes, total_fontes, pronto_para_analise]
+      properties:
+        fontes:
+          type: array
+          items: { $ref: "#/components/schemas/IngestedSource" }
+        total_fontes: { type: integer, minimum: 1 }
+        pronto_para_analise: { type: boolean }
+    ErrorDetail:
+      type: object
+      required: [code, message, details, request_id]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        details: { type: object, additionalProperties: true }
+        request_id: { type: string }
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error: { $ref: "#/components/schemas/ErrorDetail" }
+    ContentToggles:
+      type: object
+      additionalProperties: false
+      properties:
+        fluxogramas: { type: boolean, default: false }
+        diagramas: { type: boolean, default: false }
+        exemplos: { type: boolean, default: false }
+        exercicios: { type: boolean, default: false }
+        glossario: { type: boolean, default: false }
+        linha_do_tempo: { type: boolean, default: false }
+        matriz_responsabilidade: { type: boolean, default: false }
+    DocumentConfiguration:
+      type: object
+      additionalProperties: false
+      required: [perfil, toggles]
+      properties:
+        perfil:
+          type: string
+          enum: [estudo, organizacao, backlog]
+        toggles: { $ref: "#/components/schemas/ContentToggles" }
+    ConfigurationWarning:
+      type: object
+      required: [code, message, toggle]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        toggle:
+          type: string
+          enum: [fluxogramas, diagramas, exemplos, exercicios, glossario, linha_do_tempo, matriz_responsabilidade]
+    ValidatedConfiguration:
+      type: object
+      required: [perfil, toggles, avisos]
+      properties:
+        perfil:
+          type: string
+          enum: [estudo, organizacao, backlog]
+        toggles: { $ref: "#/components/schemas/ContentToggles" }
+        avisos:
+          type: array
+          items: { $ref: "#/components/schemas/ConfigurationWarning" }
+    JobSourceResponse:
+      type: object
+      required: [id, nome, formato, tipo, tamanho_bytes, requer_transcricao]
+      properties:
+        id: { type: string, format: uuid }
+        nome: { type: string }
+        formato: { type: string }
+        tipo:
+          type: string
+          enum: [document, transcript, audio, video]
+        tamanho_bytes: { type: integer, minimum: 1 }
+        requer_transcricao: { type: boolean }
+    JobResponse:
+      type: object
+      required: [id, status, perfil, toggles, avisos, fontes, provedor_llm, analise, erro, html_url, criado_em, atualizado_em, fila_posicao, fila_estimativa_minutos]
+      properties:
+        id: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [queued, processing, done, failed]
+        perfil:
+          type: string
+          enum: [estudo, organizacao, backlog]
+        toggles: { $ref: "#/components/schemas/ContentToggles" }
+        avisos:
+          type: array
+          items: { $ref: "#/components/schemas/ConfigurationWarning" }
+        fontes:
+          type: array
+          items: { $ref: "#/components/schemas/JobSourceResponse" }
+        provedor_llm: { type: [string, "null"] }
+        analise: { type: [object, "null"], additionalProperties: true }
+        erro: { type: [object, "null"], additionalProperties: true }
+        html_url: { type: [string, "null"] }
+        criado_em: { type: string, format: date-time }
+        atualizado_em: { type: string, format: date-time }
+        fila_posicao: { type: [integer, "null"], minimum: 1 }
+        fila_estimativa_minutos: { type: [integer, "null"], minimum: 1 }

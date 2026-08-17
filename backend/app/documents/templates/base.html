@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:">
+  <title>{{ rules.nome }} · {{ analysis.objetivo }}</title>
+  <style>
+    :root { --paper:#edf2f3; --ink:#102635; --muted:#526975; --accent:#007f78; --line:#b8c7cc; --card:#f9fbfb; --navy:#092238; }
+    .profile-estudo { --accent:#6656c7; } .profile-organizacao { --accent:#007f78; } .profile-backlog { --accent:#d35a24; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:linear-gradient(90deg,var(--navy) 0 10px,var(--paper) 10px); font:16px/1.65 "Segoe UI",system-ui,sans-serif; }
+    header, main, footer { width:min(1080px, calc(100% - 32px)); margin:auto; }
+    header { position:relative; padding:72px 0 40px; border-bottom:1px solid var(--line); }
+    header::after { content:""; position:absolute; right:0; top:72px; width:clamp(64px,14vw,180px); height:8px; background:repeating-linear-gradient(90deg,var(--accent) 0 8px,transparent 8px 14px); }
+    .eyebrow { color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; }
+    h1 { max-width:850px; margin:12px 0 20px; font-family:Georgia,"Times New Roman",serif; font-size:clamp(36px,7vw,72px); font-weight:500; line-height:1; letter-spacing:-.045em; }
+    h2 { margin-top:56px; font-size:28px; letter-spacing:-.02em; }
+    h3 { margin-bottom:8px; }
+    p { max-width:78ch; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+    .card { position:relative; padding:24px; background:var(--card); border:1px solid var(--line); box-shadow:4px 4px 0 color-mix(in srgb,var(--accent) 18%,transparent); }
+    .card::before { content:""; position:absolute; left:-1px; top:-1px; width:34px; height:3px; background:var(--accent); }
+    .tag { display:inline-block; margin:0 6px 6px 0; padding:3px 9px; border:1px solid var(--line); border-radius:99px; font-size:12px; }
+    ul,ol { padding-left:22px; }
+    .mermaid { overflow:auto; padding:24px; background:#fff; border:1px solid var(--line); }
+    .warning { padding:12px 16px; border-left:3px solid #d79020; background:#fff8e8; }
+    footer { margin-top:64px; padding:24px 0 48px; color:var(--muted); border-top:1px solid var(--line); font-size:13px; }
+    @media print { body { background:#fff; } header { padding-top:24px; } .card,.mermaid { break-inside:avoid; } }
+  </style>
+</head>
+<body class="profile-{{ configuration.perfil.value }}">
+  <header><div class="eyebrow">ATA / {{ rules.nome }}</div><h1>{{ analysis.objetivo }}</h1><p class="muted">{{ analysis.resumo }}</p></header>
+  <main>
+    {% block profile_content %}{% endblock %}
+    {% if configuration.toggles.exemplos and example_items %}<section><h2>Exemplos</h2><div class="grid">{% for item in example_items %}<article class="card"><h3>{{ item.titulo }}</h3><ul>{% for example in item.exemplos %}<li>{{ example }}</li>{% endfor %}</ul></article>{% endfor %}</div></section>{% endif %}
+    {% if visuals %}<section><h2>Representações visuais</h2>{% for visual, source in visuals %}<article><h3>{{ visual.titulo }}</h3><pre class="mermaid">{{ source }}</pre></article>{% endfor %}</section>{% endif %}
+    {% if analysis.riscos %}<section><h2>Riscos</h2><ul>{% for risk in analysis.riscos %}<li>{{ risk }}</li>{% endfor %}</ul></section>{% endif %}
+    {% if analysis.termos_incertos %}<section><h2>Pontos a confirmar</h2><ul>{% for term in analysis.termos_incertos %}<li>{{ term }}</li>{% endfor %}</ul></section>{% endif %}
+    {% for warning in configuration.avisos %}<p class="warning">{{ warning.message }}</p>{% endfor %}
+  </main>
+  <footer>Documento gerado pelo AtaViva. Confirme informações importantes com os participantes.</footer>
+  {% if mermaid_runtime %}<script>{{ mermaid_runtime | safe }}</script><script>mermaid.initialize({startOnLoad:true,securityLevel:'strict'});</script>{% endif %}
+</body>
+</html>

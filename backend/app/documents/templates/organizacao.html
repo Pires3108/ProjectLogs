@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block profile_content %}
+<section><h2>Decisões tomadas</h2><ul>{% for decision in analysis.decisoes %}<li>{{ decision }}</li>{% endfor %}</ul></section>
+<section><h2>Ações e prazos</h2><div class="grid">{% for item in analysis.itens %}<article class="card"><span class="tag">{{ item.status.value }}</span><h3>{{ item.titulo }}</h3><p>{{ item.descricao }}</p><p class="muted">Responsável: {{ item.responsavel or 'A confirmar' }}</p></article>{% endfor %}</div></section>
+{% if configuration.toggles.linha_do_tempo and analysis.linha_do_tempo %}<section><h2>Linha do tempo</h2><ol>{% for event in analysis.linha_do_tempo %}<li><strong>{{ event.quando or 'Ordem informada' }} · {{ event.titulo }}</strong> — {{ event.descricao }}</li>{% endfor %}</ol></section>{% endif %}
+{% if configuration.toggles.matriz_responsabilidade and analysis.responsabilidades %}<section><h2>Matriz de responsabilidades</h2><div class="grid">{% for entry in analysis.responsabilidades %}<article class="card"><h3>{{ entry.atividade }}</h3><p><strong>R:</strong> {{ entry.responsavel or 'A confirmar' }}</p><p><strong>A:</strong> {{ entry.aprovador or 'A confirmar' }}</p>{% if entry.consultados %}<p><strong>C:</strong> {{ entry.consultados | join(', ') }}</p>{% endif %}{% if entry.informados %}<p><strong>I:</strong> {{ entry.informados | join(', ') }}</p>{% endif %}</article>{% endfor %}</div></section>{% endif %}
+{% endblock %}

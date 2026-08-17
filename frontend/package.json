@@ -1,0 +1,29 @@
+{
+  "name": "ataviva-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "next": "16.3.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "6.6.4",
+    "@testing-library/react": "16.3.0",
+    "@types/node": "22.17.1",
+    "@types/react": "19.1.10",
+    "@types/react-dom": "19.1.7",
+    "eslint": "9.33.0",
+    "eslint-config-next": "16.3.1",
+    "jsdom": "26.1.0",
+    "typescript": "5.9.2",
+    "vitest": "3.2.4"
+  }
+}

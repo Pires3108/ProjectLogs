@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block profile_content %}
+{% for status, heading in [('concluido','Concluído'),('em_andamento','Em andamento'),('pendente','Pendente'),('bloqueado','Bloqueios'),('incerto','A confirmar')] %}{% set matching = analysis.itens | selectattr('status.value','equalto',status) | list %}{% if matching %}<section><h2>{{ heading }}</h2><div class="grid">{% for item in matching %}<article class="card"><span class="tag">{{ item.complexidade.value }}</span><h3>{{ item.titulo }}</h3><p>{{ item.descricao }}</p><p class="muted">{{ item.responsavel or 'Responsável a confirmar' }}</p></article>{% endfor %}</div></section>{% endif %}{% endfor %}
+{% if configuration.toggles.matriz_responsabilidade and analysis.responsabilidades %}<section><h2>Responsabilidades</h2><ul>{% for entry in analysis.responsabilidades %}<li><strong>{{ entry.responsavel or 'A confirmar' }}:</strong> {{ entry.atividade }}</li>{% endfor %}</ul></section>{% endif %}
+{% endblock %}
