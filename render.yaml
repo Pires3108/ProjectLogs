@@ -25,6 +25,8 @@ services:
         sync: false
       - key: GEMINI_API_KEY
         sync: false
+      - key: GEMINI_ANALYSIS_MODEL
+        value: gemini-3.6-flash
       - key: GROQ_API_KEY
         sync: false
       - key: API_KEY_PEPPER
