@@ -31,14 +31,24 @@ export function JobWorkspace() {
   const [toggles, setToggles] = useState(emptyToggles);
   const [files, setFiles] = useState<File[]>([]);
   const [job, setJob] = useState<Job | null>(null);
-  const [history, setHistory] = useState<Job[]>(() => {
-    if (typeof window === "undefined") return [];
-    const saved = sessionStorage.getItem("ataviva-job-history");
-    if (!saved) return [];
-    try { return JSON.parse(saved); } catch { sessionStorage.removeItem("ataviva-job-history"); return []; }
-  });
+  const [history, setHistory] = useState<Job[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Deferred to an effect (not a useState initializer) so the client's first render
+    // matches the static export's server-rendered markup; sessionStorage is unavailable
+    // during static generation and differs per browser tab, so reading it synchronously
+    // during render would cause a hydration mismatch.
+    const saved = sessionStorage.getItem("ataviva-job-history");
+    if (!saved) return;
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing one-time from sessionStorage on mount
+      setHistory(JSON.parse(saved));
+    } catch {
+      sessionStorage.removeItem("ataviva-job-history");
+    }
+  }, []);
 
   const remember = useCallback((updated: Job) => {
     setHistory((current) => {
