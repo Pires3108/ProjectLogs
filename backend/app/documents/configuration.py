@@ -25,7 +25,7 @@ class DocumentConfiguration(BaseModel):
 class ConfigurationWarning(BaseModel):
     code: str
     message: str
-    toggle: ContentToggle
+    toggle: ContentToggle | None = None
 
 
 class ValidatedConfiguration(BaseModel):

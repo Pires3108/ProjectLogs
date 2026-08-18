@@ -85,8 +85,21 @@ class JobProcessor:
                 message="As fontes não produziram texto suficiente para análise.",
             )
         outcome = self.analysis_service.analyze("\n\n".join(texts))
+        avisos = list(job.warnings)
+        if outcome.fallback_utilizado:
+            avisos.append(
+                {
+                    "code": "LLM_FALLBACK_PROVIDER_USED",
+                    "message": (
+                        f"Esta análise foi processada pelo provedor de contingência "
+                        f"({outcome.provedor}) porque o provedor principal não respondeu. "
+                        "Fontes longas podem ter sido resumidas antes da análise; "
+                        "revise decisões, riscos e termos incertos com atenção extra."
+                    ),
+                }
+            )
         configuration = ValidatedConfiguration.model_validate(
-            {"perfil": job.perfil, "toggles": job.toggles, "avisos": job.warnings}
+            {"perfil": job.perfil, "toggles": job.toggles, "avisos": avisos}
         )
         html = self.html_generator.generate(outcome.analise, configuration)
         job.html_storage_key = self.html_storage.save(job.id, html)
