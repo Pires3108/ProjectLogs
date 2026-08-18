@@ -75,7 +75,13 @@ class WorkItem(StrictModel):
 
 
 class StructuredAnalysis(StrictModel):
-    objetivo: str = Field(min_length=1)
+    objetivo: str = Field(
+        min_length=1,
+        description=(
+            "Título curto e direto, como manchete (ideal até ~60 caracteres, "
+            "nunca uma frase longa ou composta)."
+        ),
+    )
     resumo: str = Field(min_length=1)
     itens: list[WorkItem]
     decisoes: list[str]

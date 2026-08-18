@@ -33,8 +33,10 @@ def distributed_excerpt(text: str, max_characters: int) -> str:
 def build_analysis_prompt(text: str) -> str:
     return (
         "Analise a fonte delimitada abaixo. Extraia objetivo, resumo, itens de trabalho, "
-        "decisões, riscos e termos incertos. Para complexidade, use 'incerta' quando a fonte "
-        "não trouxer elementos suficientes.\n\n<FONTE>\n"
+        "decisões, riscos e termos incertos. O campo objetivo é um título: uma frase curta "
+        "e direta (até ~60 caracteres), nunca uma frase longa ou composta por várias ideias. "
+        "O resumo, não o objetivo, é o lugar para detalhar contexto. Para complexidade, use "
+        "'incerta' quando a fonte não trouxer elementos suficientes.\n\n<FONTE>\n"
         f"{text}\n"
         "</FONTE>"
     )
