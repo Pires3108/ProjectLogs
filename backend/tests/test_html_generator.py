@@ -34,9 +34,9 @@ def test_generates_responsive_profile_html_without_external_assets(
 
     assert "<!doctype html>" in html
     assert expected_heading in html
-    assert 'class="sidebar"' in html
-    assert 'class="signal"' in html
-    assert 'id="progress"' in html
+    assert 'class="hero-aside"' in html
+    assert 'class="nav-wrap"' in html
+    assert 'id="readingMeter"' in html
     assert "@media print" in html
     assert "https://" not in html
     assert "mermaid.initialize" not in html
