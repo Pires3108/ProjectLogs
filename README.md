@@ -20,15 +20,21 @@ chamada do comando abaixo.
 
 ## Instalar como plugin do Claude Code
 
-Este repositório é também um plugin do Claude Code (`.claude-plugin/plugin.json`),
-então dá pra instalar a skill em qualquer sessão sem clonar o repo dentro do
-projeto de destino:
+Este repositório é também um marketplace de plugin do Claude Code
+(`.claude-plugin/marketplace.json` + `.claude-plugin/plugin.json`), então dá
+pra instalar a skill em qualquer sessão sem clonar o repo dentro do projeto
+de destino:
 
 ```sh
-# a partir de um clone local do repositório
-claude plugin install --plugin-dir /caminho/para/este/repositorio
+/plugin marketplace add Pires3108/ProjectLogs
+/plugin install ataviva@ataviva
+```
 
-# ou direto de uma URL (sem clonar)
+Também funciona sem registrar marketplace, direto de um clone local ou de
+uma URL (sem descoberta via `/plugin`, mas instala igual):
+
+```sh
+claude plugin install --plugin-dir /caminho/para/este/repositorio
 claude plugin install --plugin-url https://github.com/Pires3108/ProjectLogs/archive/refs/heads/main.zip
 ```
 

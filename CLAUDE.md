@@ -102,6 +102,16 @@ top-level `skills/`, so the skill still auto-loads when someone opens this repo
 directly, without requiring a plugin install. Bump `version` here on every
 user-visible change to the skill or CLI contract.
 
+`.claude-plugin/marketplace.json` makes the same repo discoverable via
+`/plugin marketplace add Pires3108/ProjectLogs` + `/plugin install ataviva@ataviva`
+(without it, a direct repo isn't listed by `/plugin marketplace add` even though
+`--plugin-dir`/`--plugin-url` installs still work). Its single plugin entry sources
+from `"./"` (the marketplace root, i.e. this repo), so `plugin.json` stays the
+single source of truth for components — keep the `version` in sync between the two
+files rather than setting it in both, since a stale `plugin.json` version silently
+overrides the marketplace entry's. Run `claude plugin validate .` after editing
+either file.
+
 ## The skill
 
 `.claude/skills/ataviva-cli-analyze/SKILL.md` drives the actual product flow: it tells

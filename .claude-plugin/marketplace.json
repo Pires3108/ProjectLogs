@@ -1,0 +1,16 @@
+{
+  "name": "ataviva",
+  "description": "Plugin AtaViva: geração local de documentos AtaViva pela skill de análise do Claude Code.",
+  "owner": {
+    "name": "Pires3108",
+    "url": "https://github.com/Pires3108"
+  },
+  "plugins": [
+    {
+      "name": "ataviva",
+      "source": "./",
+      "description": "Gera documentos AtaViva (perfis Estudo, Organização ou Backlog) a partir de uma fonte de reunião ou documento, com Claude fazendo a extração diretamente na conversa — sem chamar Gemini/Groq.",
+      "version": "0.1.0"
+    }
+  ]
+}
