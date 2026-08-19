@@ -39,7 +39,7 @@
     h1,h2,h3 { margin-top:0; font-family:var(--display); font-weight:600; line-height:1.16; color:var(--ink); }
     h1 { max-width:19ch; margin:0; font-size:clamp(2.3rem,4.6vw,3.8rem); letter-spacing:-.01em; text-wrap:balance; }
     .hero-aside { position:relative; padding:2px 0 4px 22px; border-left:3px solid var(--spark); }
-    .lead { margin:0; color:var(--ink-2); font-size:1.06rem; line-height:1.62; font-style:italic; font-family:var(--display); }
+    .lead { display:-webkit-box; margin:0; overflow:hidden; color:var(--ink-2); font-size:1.06rem; line-height:1.62; font-style:italic; font-family:var(--display); -webkit-line-clamp:5; -webkit-box-orient:vertical; }
     .hero-meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
     .tag { padding:5px 9px; border:1px solid var(--line); border-radius:7px; color:var(--ink-2); background:var(--paper); font:650 .76rem var(--sans); white-space:nowrap; }
 

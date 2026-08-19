@@ -35,8 +35,10 @@ def build_analysis_prompt(text: str) -> str:
         "Analise a fonte delimitada abaixo. Extraia objetivo, resumo, itens de trabalho, "
         "decisões, riscos e termos incertos. O campo objetivo é um título: uma frase curta "
         "e direta (até ~60 caracteres), nunca uma frase longa ou composta por várias ideias. "
-        "O resumo, não o objetivo, é o lugar para detalhar contexto. Para complexidade, use "
-        "'incerta' quando a fonte não trouxer elementos suficientes.\n\n<FONTE>\n"
+        "O campo resumo é curto (1 a 3 frases, até ~280 caracteres) — não liste detalhes "
+        "nele; cada detalhe específico vai no campo apropriado (itens, decisoes, riscos, "
+        "termos_incertos etc). Para complexidade, use 'incerta' quando a fonte não trouxer "
+        "elementos suficientes.\n\n<FONTE>\n"
         f"{text}\n"
         "</FONTE>"
     )

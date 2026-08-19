@@ -80,9 +80,23 @@ mesmo fazendo a extração.
      Sem isso, o comando falha com `MERMAID_ASSET_UNAVAILABLE` — não é um bug,
      é só o asset vendorizado faltando neste checkout local.
 
-5. **Abra ou entregue o arquivo gerado** ao usuário (mesmo padrão das outras
-   prévias desta conversa: pode publicar como Artifact ou salvar em
-   `Downloads`).
+5. **Decida onde salvar o HTML antes de recorrer a `Downloads`.** `Downloads`
+   é o último recurso, não o padrão:
+   - Se a fonte lida vem de dentro de um projeto/repositório (há um `.git`,
+     `README.md`, `package.json` etc. na árvore de pastas acima da fonte),
+     procure por uma pasta de documentação já existente nesse projeto —
+     `docs/`, `documentation/`, `documentos/` ou `wiki/` (Glob a partir da
+     raiz do projeto, 1-2 níveis de profundidade).
+   - Se achar uma dessas pastas, salve o HTML lá. Se ela já tiver muitos
+     arquivos de tipos variados, crie uma subpasta `ataviva/` dentro dela
+     para não misturar; se for uma pasta pequena/dedicada, salve direto nela.
+   - Se não achar nenhuma pasta assim, ou não houver um projeto claro por
+     trás da fonte, pergunte ao usuário onde salvar ou use `Downloads`.
+   - Sempre diga ao usuário onde o arquivo foi salvo e por que escolheu esse
+     lugar — nunca decida isso em silêncio.
+   - Também pode publicar como Artifact, exceto quando o conteúdo for
+     sensível/confidencial (nomes de participantes reais, dados de cliente);
+     nesse caso, fica só local, a menos que o usuário peça para publicar.
 
 ## O que esta skill não faz
 

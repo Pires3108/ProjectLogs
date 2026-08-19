@@ -82,7 +82,14 @@ class StructuredAnalysis(StrictModel):
             "nunca uma frase longa ou composta)."
         ),
     )
-    resumo: str = Field(min_length=1)
+    resumo: str = Field(
+        min_length=1,
+        description=(
+            "Resumo curto (1 a 3 frases, ideal até ~280 caracteres). Não é o "
+            "lugar para listar cada detalhe — detalhes específicos vão nos "
+            "campos itens, decisoes, riscos etc."
+        ),
+    )
     itens: list[WorkItem]
     decisoes: list[str]
     riscos: list[str]
