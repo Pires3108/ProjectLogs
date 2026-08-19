@@ -2,35 +2,48 @@
 
 ## Project Structure & Module Organization
 
-This repository is currently in the planning phase. `backlog-projeto.md` is the source of truth for scope, architecture, error contracts, and the sprint plan. As implementation begins, keep the proposed services separated:
+AtaViva is now scoped to the plugin/CLI only — there is no web app, API, or
+database in this repository.
 
-- `frontend/` — Next.js UI for uploads, profile/toggle selection, and job status.
-- `backend/` — FastAPI application, ingestion pipeline, provider abstraction, and HTML generation.
-- `tests/` — integration and end-to-end tests; unit tests may live beside each service.
-- `infra/` — Docker, CI/CD, database, Redis, and storage configuration.
-- `docs/` — OpenAPI artifacts and architectural decisions.
+- `backend/app/cli.py` — the entry point; `render-analysis` generates the
+  HTML document from a `StructuredAnalysis` JSON.
+- `backend/app/analysis/` — `models.py` (the `StructuredAnalysis` schema) and
+  `prompt.py` (the extraction rules Claude follows when acting as the
+  skill's analyst).
+- `backend/app/documents/` — profile/toggle rules, the Jinja2 HTML generator,
+  and templates.
+- `backend/tests/` — unit tests alongside the code they cover.
+- `.claude/skills/ataviva-cli-analyze/` — the Claude Code skill that drives
+  the local, no-API extraction-and-render flow.
+- `.claude-plugin/plugin.json` — the plugin manifest; makes this repo
+  installable via `claude plugin install`.
 
-Do not commit generated HTML, uploaded media, credentials, or local runtime data.
+Do not commit generated HTML, uploaded media, credentials, or local runtime
+data.
 
 ## Build, Test, and Development Commands
 
-No runnable application or package manifest exists yet. Add exact commands to the root `README.md` when scaffolding a service. Prefer predictable entry points such as:
-
-- `docker compose up --build` — start the complete local stack.
-- `cd backend && pytest` — run backend tests.
-- `cd frontend && npm test` — run frontend tests.
-- `cd frontend && npm run lint` — check frontend style.
-
-Commands above are target conventions, not yet implemented; keep them current as tooling is added.
+- `cd backend && uv sync --extra dev` — install dependencies.
+- `cd backend && uv run pytest` — run tests.
+- `cd backend && uv run ruff check .` — lint.
+- `cd backend && uv run python -m app.cli render-analysis --analysis ... --perfil ... --toggles ... --output ...` — generate a document.
 
 ## Coding Style & Naming Conventions
 
-Use four spaces for Python and two spaces for TypeScript, JSON, and YAML. Follow `snake_case` for Python modules/functions, `PascalCase` for React components and Python classes, and `camelCase` for TypeScript variables. Keep API JSON fields consistent with the Portuguese contract where already defined (for example, `perfil` and `linha_do_tempo`). Use automated formatters and linters configured by each service; recommended defaults are Ruff for Python and ESLint/Prettier for TypeScript.
+Four spaces for Python. `snake_case` for modules/functions, `PascalCase` for
+classes. Keep JSON fields consistent with the existing Portuguese contract
+(for example, `perfil` and `linha_do_tempo`). Ruff is the linter/formatter.
 
 ## Testing Guidelines
 
-Cover parsers, document normalization, profile/toggle validation, and HTML sections with unit tests. Mock Gemini and Groq in integration tests, including `429` fallback behavior. Add contract tests against OpenAPI and E2E coverage for upload-to-download flows. Name Python tests `test_*.py`; use `*.test.ts(x)` for frontend tests. Include regression tests with every bug fix.
+Cover profile/toggle validation and HTML sections with unit tests. Name
+tests `test_*.py`. Include a regression test with every bug fix.
 
 ## Commit & Pull Request Guidelines
 
-There is no Git history establishing a convention. Use concise imperative commits, optionally following Conventional Commits: `feat: add document normalizer` or `fix: handle invalid profile toggle`. Keep commits focused. Pull requests should summarize behavior, reference the relevant backlog item or issue, list verification performed, and note API/configuration changes. Include screenshots for UI or generated-HTML changes. Never expose API keys, meeting content, or personally identifiable information in fixtures, logs, or review artifacts.
+Use concise imperative commits, optionally following Conventional Commits:
+`feat: add document normalizer` or `fix: handle invalid profile toggle`.
+Keep commits focused. Pull requests should summarize behavior, list
+verification performed, and note configuration changes. Never expose API
+keys, meeting content, or personally identifiable information in fixtures,
+logs, or review artifacts.

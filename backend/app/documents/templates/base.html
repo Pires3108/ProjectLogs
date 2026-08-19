@@ -191,6 +191,7 @@
       section.is-visible .grid>.card:nth-child(n+6),section.is-visible .decision-list>li:nth-child(n+6),section.is-visible .risk-list>li:nth-child(n+6),section.is-visible .confirm-list>li:nth-child(n+6),section.is-visible .timeline>li:nth-child(n+6),section.is-visible .quiz-list>li:nth-child(n+6) { animation-delay:.3s; }
     }
   </style>
+  {% if visual_identity_override %}<style>{{ visual_identity_override | safe }}</style>{% endif %}
 </head>
 <body class="profile-{{ configuration.perfil.value }}">
   <div class="reading-meter" id="readingMeter" aria-hidden="true"></div>

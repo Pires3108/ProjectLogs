@@ -2,26 +2,19 @@
 name: ataviva-cli-analyze
 description: >-
   Gera um documento AtaViva (perfil Estudo, Organização ou Backlog) a partir de
-  uma fonte local, com Claude fazendo a extração da análise diretamente —
-  sem chamar Gemini ou Groq. Use quando o usuário pedir para "processar",
-  "gerar documento" ou "analisar" uma fonte do AtaViva pela própria conversa,
-  localmente, em vez de usar a API/site.
+  uma fonte local, com Claude fazendo a extração da análise diretamente.
+  Use quando o usuário pedir para "processar", "gerar documento" ou
+  "analisar" uma fonte do AtaViva pela própria conversa.
 ---
 
 # AtaViva — análise local pela CLI
 
-Este projeto (AtaViva) normalmente extrai `objetivo`, `resumo`, `itens`,
-`decisoes`, `riscos`, `termos_incertos`, `visuais`, `glossario`,
-`linha_do_tempo` e `responsabilidades` de uma fonte chamando Gemini (e Groq
-como fallback) por HTTP. Esta skill existe para fazer esse mesmo trabalho
-**localmente, com você (Claude) fazendo a extração**, sem tocar em nenhum
-provedor externo — útil quando os provedores estão indisponíveis, com quota
-esgotada, ou quando o usuário só quer testar/gerar um documento rapidamente
-nesta conversa.
-
-O motor de renderização (templates, CSS, animações) é o mesmo usado em
-produção — só a etapa de "chamar um LLM por HTTP" é substituída por você
-mesmo fazendo a extração.
+O AtaViva é hoje só este plugin/CLI: você (Claude) extrai `objetivo`,
+`resumo`, `itens`, `decisoes`, `riscos`, `termos_incertos`, `visuais`,
+`glossario`, `linha_do_tempo` e `responsabilidades` de uma fonte diretamente
+nesta conversa, sem chamar nenhuma API/LLM externa (Gemini, Groq ou outra) —
+e depois usa o comando `render-analysis` para gerar o HTML com o motor de
+renderização real (templates, CSS, animações) do projeto.
 
 ## Passo a passo
 
@@ -55,8 +48,7 @@ mesmo fazendo a extração.
    listas vazias `[]`, nunca omita uma chave).
 
 4. **Grave o JSON** em um arquivo temporário (ex.: no diretório de scratch da
-   sessão) e valide/gere o HTML com o comando abaixo — ele reusa o gerador
-   real, então o resultado é idêntico ao que a API geraria:
+   sessão) e valide/gere o HTML com o comando abaixo:
 
    ```powershell
    cd backend
@@ -79,6 +71,15 @@ mesmo fazendo a extração.
      `--mermaid-asset <caminho para node_modules/mermaid/dist/mermaid.min.js>`.
      Sem isso, o comando falha com `MERMAID_ASSET_UNAVAILABLE` — não é um bug,
      é só o asset vendorizado faltando neste checkout local.
+   - **Experimental, atrás de feature flag:** se o usuário quiser que o
+     documento siga a identidade visual (cores/fontes, os tokens `--accent`,
+     `--spark`, `--ink` etc. definidos em `:root` no `<style>`) de um HTML do
+     AtaViva já existente, defina `FEATURE_VISUAL_IDENTITY=true` no `.env` e
+     passe `--identidade-visual-documento <caminho.html>` (um arquivo
+     específico) ou `--identidade-visual-diretorio <pasta>` (usa o HTML mais
+     recente da pasta). Sem a variável de ambiente ligada, os argumentos são
+     aceitos mas ignorados com um aviso no console — isso é esperado, é a
+     flag desligada, não um bug.
 
 5. **Decida onde salvar o HTML antes de recorrer a `Downloads`.** `Downloads`
    é o último recurso, não o padrão:
@@ -100,9 +101,7 @@ mesmo fazendo a extração.
 
 ## O que esta skill não faz
 
-- Não cria, atualiza nem consulta jobs no banco de dados do AtaViva — é um
-  caminho totalmente paralelo ao pipeline real (API → Celery → Gemini/Groq).
-  Nenhum job fica registrado, nenhuma chave de API é consumida.
-- Não substitui o pipeline em produção (Render). Para isso, veja a opção de
-  adicionar um provedor de análise de verdade em
-  `backend/app/analysis/factory.py` — assunto separado, não coberto aqui.
+- Não chama nenhuma API/LLM externa (Gemini, Groq) nem depende de banco de
+  dados, fila ou serviço web — o projeto agora é só o plugin/CLI local
+  (`backend/app/cli.py`). Não há mais site, API nem pipeline em produção para
+  substituir.

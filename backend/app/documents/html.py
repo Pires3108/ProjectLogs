@@ -37,7 +37,13 @@ class HtmlGenerator:
             lstrip_blocks=True,
         )
 
-    def generate(self, analysis: StructuredAnalysis, configuration: ValidatedConfiguration) -> str:
+    def generate(
+        self,
+        analysis: StructuredAnalysis,
+        configuration: ValidatedConfiguration,
+        *,
+        visual_identity_override: str | None = None,
+    ) -> str:
         visuals = self._enabled_visuals(analysis, configuration)
         mermaid_runtime = self._load_mermaid() if visuals else None
         template = self.environment.get_template(f"{configuration.perfil.value}.html")
@@ -50,6 +56,7 @@ class HtmlGenerator:
             example_items=[item for item in analysis.itens if item.exemplos],
             quiz_items=self._build_quiz(analysis, configuration),
             complexity_levels=_COMPLEXITY_LEVELS,
+            visual_identity_override=visual_identity_override,
         )
 
     def _load_mermaid(self) -> str:
@@ -81,7 +88,8 @@ class HtmlGenerator:
     def _build_quiz(
         analysis: StructuredAnalysis, configuration: ValidatedConfiguration
     ) -> list[dict[str, object]]:
-        if configuration.perfil is not DocumentProfile.estudo or not configuration.toggles.exercicios:
+        is_estudo = configuration.perfil is DocumentProfile.estudo
+        if not is_estudo or not configuration.toggles.exercicios:
             return []
 
         entries: list[tuple[str, str, tuple[str, str]]] = [
@@ -113,7 +121,9 @@ class HtmlGenerator:
         answers = [correct for _, correct, _ in entries]
         quiz: list[dict[str, object]] = []
         for index, (question, correct, (level, level_slug)) in enumerate(entries):
-            others = [answer for i, answer in enumerate(answers) if i != index and answer != correct]
+            others = [
+                answer for i, answer in enumerate(answers) if i != index and answer != correct
+            ]
             distractors = random.sample(others, k=min(_MAX_OPTIONS - 1, len(others)))
             if len(distractors) < min(2, _MAX_OPTIONS - 1):
                 filler = [d for d in _GENERIC_DISTRACTORS if d not in distractors]

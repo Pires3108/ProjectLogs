@@ -5,13 +5,8 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 *.py[cod]
-node_modules/
-.next/
-.firebase/
 coverage/
 dist/
-frontend/out/*
-!frontend/out/.gitkeep
 uploads/
 runtime/
 generated-html/
