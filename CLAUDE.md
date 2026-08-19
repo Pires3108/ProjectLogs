@@ -59,6 +59,11 @@ Everything lives under `backend/app/`:
   extraction rules the skill points Claude at (only use source-grounded facts, mark
   unclear values in `termos_incertos`, keep `objetivo` a short title, etc.). This file
   is read as instructions by the skill, not executed against an external LLM.
+  `DepthLevel` (`raso`/`medio`/`profundo`/`estendido`) and `DEPTH_LEVEL_INSTRUCTIONS`
+  define how thorough the extraction should be — the skill asks the user to pick one
+  (defaulting to `medio` if unspecified) before extracting; it only changes how much is
+  extracted (item/evidence/example/glossary coverage), never the schema or the fixed
+  `objetivo`/`resumo` length rules.
 - **`documents/configuration.py`** — `PROFILE_RULES` defines the three document
   profiles (`estudo`, `organizacao`, `backlog`), each with required sections, tone, and
   an allow-list of `ContentToggle`s. `validate_configuration()` silently disables (with

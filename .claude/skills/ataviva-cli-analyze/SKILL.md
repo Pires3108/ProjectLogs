@@ -24,7 +24,9 @@ renderização real (templates, CSS, animações) do projeto.
      `build_analysis_prompt` têm as regras exatas (só usar informação da
      fonte, não inventar responsáveis/prazos/status/complexidade, evidências
      como paráfrases curtas, `objetivo` é um título curto de até ~60
-     caracteres, etc.).
+     caracteres, etc.). `DEPTH_LEVEL_INSTRUCTIONS` (mesmo arquivo) define o
+     que cada nível de profundidade (passo 2) significa na prática — releia o
+     texto do nível escolhido antes de extrair.
    - `backend/app/analysis/models.py` — `StructuredAnalysis` e os modelos
      aninhados (`WorkItem`, `GlossaryTerm`, `TimelineEvent`,
      `ResponsibilityEntry`, `VisualDefinition`) definem o schema exato. Preste
@@ -40,12 +42,36 @@ renderização real (templates, CSS, animações) do projeto.
    toggles habilitar (`fluxogramas`, `diagramas`, `exemplos`, `exercicios`,
    `glossario`, `linha_do_tempo`, `matriz_responsabilidade`).
 
+   **Nível de profundidade:** se o usuário ainda não indicou um nível
+   (explicitamente ou por algo como "bem detalhado"/"resumido"), pergunte
+   usando `AskUserQuestion` com estas quatro opções, deixando claro no texto
+   da pergunta que nível mais profundo consome mais tokens da conversa e gera
+   um documento mais longo:
+   - **Raso** — só o essencial (itens/decisões/riscos principais, descrições
+     curtas). Menos tokens, documento mais enxuto.
+   - **Médio** (padrão/recomendado) — cobertura equilibrada dos itens
+     claramente discutidos na fonte.
+   - **Profundo** — cobertura abrangente, inclui pontos secundários,
+     descrições e evidências mais completas.
+   - **Estendido** — extração exaustiva, nada é descartado. Mais tokens
+     gastos e o documento mais longo possível.
+
+   O nível escolhido mapeia direto para `DepthLevel` em
+   `backend/app/analysis/prompt.py` (`raso`/`medio`/`profundo`/`estendido`) —
+   use o texto de `DEPTH_LEVEL_INSTRUCTIONS[nivel]` como guia de quanto
+   detalhar cada campo no passo 3.
+
 3. **Leia a fonte** (Read, ou peça o texto direto no chat) e faça a extração
-   você mesmo, seguindo as mesmas regras do `SYSTEM_INSTRUCTION`: só use o que
-   está na fonte, marque o que não está claro em `termos_incertos`, não
-   invente RACI/datas/sequências. Monte o JSON exatamente no formato de
-   `StructuredAnalysis` (todos os campos são obrigatórios mesmo que vazios —
-   listas vazias `[]`, nunca omita uma chave).
+   você mesmo, seguindo as mesmas regras do `SYSTEM_INSTRUCTION` e o nível de
+   profundidade escolhido no passo 2: só use o que está na fonte, marque o
+   que não está claro em `termos_incertos`, não invente RACI/datas/sequências.
+   O nível de profundidade controla apenas *quanto* extrair (quantos itens,
+   quantas evidências/exemplos por item, quão completo o glossário/linha do
+   tempo/responsabilidades) — nunca relaxe as regras de não inventar dado
+   nem os limites de `objetivo`/`resumo`, que são fixos em qualquer nível.
+   Monte o JSON exatamente no formato de `StructuredAnalysis` (todos os
+   campos são obrigatórios mesmo que vazios — listas vazias `[]`, nunca omita
+   uma chave).
 
 4. **Grave o JSON** em um arquivo temporário (ex.: no diretório de scratch da
    sessão) e valide/gere o HTML com o comando abaixo:

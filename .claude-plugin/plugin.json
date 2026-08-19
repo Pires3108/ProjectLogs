@@ -1,7 +1,7 @@
 {
   "name": "ataviva",
   "displayName": "AtaViva",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Gera documentos AtaViva (perfis Estudo, Organização ou Backlog) a partir de uma fonte de reunião ou documento, com Claude fazendo a extração diretamente na conversa — sem chamar Gemini/Groq.",
   "author": {
     "name": "Pires3108"
